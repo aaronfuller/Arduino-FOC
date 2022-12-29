@@ -1,31 +1,45 @@
 #include "BLDCDriver3PWM.h"
 
-BLDCDriver3PWM::BLDCDriver3PWM(int phA, int phB, int phC, int en1, int en2, int en3){
+BLDCDriver3PWM::BLDCDriver3PWM(
+  TIM_HandleTypeDef* phA_timer, uint32_t phA_channel,
+  TIM_HandleTypeDef* phB_timer, uint32_t phB_channel,
+  TIM_HandleTypeDef* phC_timer, uint32_t phC_channel,
+  GPIO_TypeDef* enable_a_gpio_bank, uint16_t enable_a_pin,
+  GPIO_TypeDef* enable_b_gpio_bank, uint16_t enable_b_pin,
+  GPIO_TypeDef* enable_c_gpio_bank, uint16_t enable_c_pin
+  );
+
   // Pin initialization
-  pwmA = phA;
-  pwmB = phB;
-  pwmC = phC;
+  _phA_timer = phA_timer;
+  _phB_timer = phB_timer;
+  _phC_timer = phC_timer;
+
+  _phA_channel = phA_channel;
+  _phB_channel = phB_channel;
+  _phC_channel = phC_channel;
 
   // enable_pin pin
-  enableA_pin = en1;
-  enableB_pin = en2;
-  enableC_pin = en3;
+  _enable_a_gpio_bank = enable_a_gpio_bank;
+  _enable_b_gpio_bank = enable_b_gpio_bank;
+  _enable_b_gpio_bank = enable_b_gpio_bank;
+
+  _enable_a_pin = enable_a_pin;
+  _enable_b_pin = enable_b_pin;
+  _enable_b_pin = enable_b_pin;
 
   // default power-supply value
   voltage_power_supply = DEF_POWER_SUPPLY;
   voltage_limit = NOT_SET;
   pwm_frequency = NOT_SET;
-
 }
 
 // enable motor driver
 void  BLDCDriver3PWM::enable(){
-    // enable_pin the driver - if enable_pin pin available
-    if ( _isset(enableA_pin) ) digitalWrite(enableA_pin, enable_active_high);
-    if ( _isset(enableB_pin) ) digitalWrite(enableB_pin, enable_active_high);
-    if ( _isset(enableC_pin) ) digitalWrite(enableC_pin, enable_active_high);
-    // set zero to PWM
-    setPwm(0,0,0);
+  HAL_GPIO_WritePin(this->_enable_a_gpio_bank, this->_enable_a_pin, DRIVER_ENABLE);
+  HAL_GPIO_WritePin(this->_enable_b_gpio_bank, this->_enable_b_pin, DRIVER_ENABLE);
+  HAL_GPIO_WritePin(this->_enable_c_gpio_bank, this->_enable_c_pin, DRIVER_ENABLE);
+  // set zero to PWM
+  setPwm(0,0,0);
 }
 
 // disable motor driver
@@ -34,43 +48,25 @@ void BLDCDriver3PWM::disable()
   // set zero to PWM
   setPwm(0, 0, 0);
   // disable the driver - if enable_pin pin available
-  if ( _isset(enableA_pin) ) digitalWrite(enableA_pin, !enable_active_high);
-  if ( _isset(enableB_pin) ) digitalWrite(enableB_pin, !enable_active_high);
-  if ( _isset(enableC_pin) ) digitalWrite(enableC_pin, !enable_active_high);
-
+  HAL_GPIO_WritePin(this->_enable_a_gpio_bank, this->_enable_a_pin, DRIVER_DISABLE);
+  HAL_GPIO_WritePin(this->_enable_b_gpio_bank, this->_enable_b_pin, DRIVER_DISABLE);
+  HAL_GPIO_WritePin(this->_enable_c_gpio_bank, this->_enable_c_pin, DRIVER_DISABLE);
 }
 
 // init hardware pins
 int BLDCDriver3PWM::init() {
-  // PWM pins
-  pinMode(pwmA, OUTPUT);
-  pinMode(pwmB, OUTPUT);
-  pinMode(pwmC, OUTPUT);
-  if( _isset(enableA_pin)) pinMode(enableA_pin, OUTPUT);
-  if( _isset(enableB_pin)) pinMode(enableB_pin, OUTPUT);
-  if( _isset(enableC_pin)) pinMode(enableC_pin, OUTPUT);
-
-
   // sanity check for the voltage limit configuration
   if(!_isset(voltage_limit) || voltage_limit > voltage_power_supply) voltage_limit =  voltage_power_supply;
-
-  // Set the pwm frequency to the pins
-  // hardware specific function - depending on driver and mcu
-  params = _configure3PWM(pwm_frequency, pwmA, pwmB, pwmC);
-  initialized = (params!=SIMPLEFOC_DRIVER_INIT_FAILED);
-  return params!=SIMPLEFOC_DRIVER_INIT_FAILED;
+  return true;
 }
-
 
 
 // Set voltage to the pwm pin
 void BLDCDriver3PWM::setPhaseState(int sa, int sb, int sc) {
   // disable if needed
-  if( _isset(enableA_pin) &&  _isset(enableB_pin)  && _isset(enableC_pin) ){
-    digitalWrite(enableA_pin, sa == _HIGH_IMPEDANCE ? LOW : HIGH);
-    digitalWrite(enableB_pin, sb == _HIGH_IMPEDANCE ? LOW : HIGH);
-    digitalWrite(enableC_pin, sc == _HIGH_IMPEDANCE ? LOW : HIGH);
-  }
+  HAL_GPIO_WritePin(this->_enable_a_gpio_bank, this->_enable_a_pin, sa == _HIGH_IMPEDANCE ? DRIVER_DISABLE : DRIVER_ENABLE);
+  HAL_GPIO_WritePin(this->_enable_b_gpio_bank, this->_enable_b_pin, sb == _HIGH_IMPEDANCE ? DRIVER_DISABLE : DRIVER_ENABLE);
+  HAL_GPIO_WritePin(this->_enable_c_gpio_bank, this->_enable_c_pin, sc == _HIGH_IMPEDANCE ? DRIVER_DISABLE : DRIVER_ENABLE);
 }
 
 // Set voltage to the pwm pin
@@ -88,5 +84,7 @@ void BLDCDriver3PWM::setPwm(float Ua, float Ub, float Uc) {
 
   // hardware specific writing
   // hardware specific function - depending on driver and mcu
-  _writeDutyCycle3PWM(dc_a, dc_b, dc_c, params);
+  __HAL_TIM_SET_COMPARE(_phA_timer, _phA_channel, (int)(dc_a*ARR_VALUE));
+  __HAL_TIM_SET_COMPARE(_phB_timer, _phB_channel, (int)(dc_b*ARR_VALUE));
+  __HAL_TIM_SET_COMPARE(_phC_timer, _phC_channel, (int)(dc_c*ARR_VALUE));
 }
