@@ -7,8 +7,9 @@
 #include "../common/defaults.h"
 
 extern "C" {
-  #include "stm32g4xx_hal_tim.h"
-  #include "stm32g4xx_hal_gpio.h"
+  #include "stm32g4xx_hal.h"
+  // #include "stm32g4xx_hal_tim.h"
+  // #include "stm32g4xx_hal_gpio.h"
 }
 
 #define ARR_VALUE 2047.0f

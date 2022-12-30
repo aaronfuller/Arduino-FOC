@@ -12,8 +12,8 @@
 
 extern "C" {
     #include "stm32g4xx_hal.h"
-    #include "stm32g4xx_hal_tim.h"
-    #include "stm32g4xx_hal_gpio.h"
+    // #include "stm32g4xx_hal_tim.h"
+    // #include "stm32g4xx_hal_gpio.h"
 
     void initialize_driver(
         TIM_HandleTypeDef* phA_timer, uint32_t phA_channel,
