@@ -1,14 +1,7 @@
 #ifndef GOAT_FOC_H
 #define GOAT_FOC_H
 
-#include "BLDCMotor.h"
-#include "sensors/megatron_cw360_4220.h"
-#include "sensors/GenericSensor.h"
-#include "drivers/BLDCDriver3PWM.h"
-#include "current_sense/LowsideCurrentSense.h"
-#include "current_sense/GenericCurrentSense.h"
-
-#define BATTERY_VOLTAGE 160
+#define BATTERY_VOLTAGE 12
 
 extern "C" {
     #include "stm32g4xx_hal.h"

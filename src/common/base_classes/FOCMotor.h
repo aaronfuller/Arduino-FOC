@@ -1,7 +1,6 @@
 #ifndef FOCMOTOR_H
 #define FOCMOTOR_H
 
-#include "Arduino.h"
 #include "Sensor.h"
 #include "CurrentSense.h"
 

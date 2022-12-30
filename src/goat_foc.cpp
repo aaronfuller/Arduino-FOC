@@ -1,6 +1,13 @@
 #include "goat_foc.h"
 #include <memory>
 
+#include "BLDCMotor.h"
+#include "sensors/megatron_cw360_4220.h"
+#include "sensors/GenericSensor.h"
+#include "drivers/BLDCDriver3PWM.h"
+#include "current_sense/LowsideCurrentSense.h"
+#include "current_sense/GenericCurrentSense.h"
+
 BLDCDriver3PWM driver;
 megatron_cw360_4220 sensor;
 LowsideCurrentSense current_sense;
