@@ -1,15 +1,19 @@
 #ifndef LOWSIDE_CS_LIB_H
 #define LOWSIDE_CS_LIB_H
 
-#include "Arduino.h"
 #include "../common/foc_utils.h"
 #include "../common/time_utils.h"
 #include "../common/defaults.h"
 #include "../common/base_classes/CurrentSense.h"
 #include "../common/base_classes/FOCMotor.h"
 #include "../common/lowpass_filter.h"
-#include "hardware_api.h"
 
+extern "C" {
+  #include "stm32g4xx_hal.h"
+}
+
+#define VREF 3.3f
+#define ADC_MAX 0xFFF
 
 class LowsideCurrentSense: public CurrentSense{
   public:
@@ -21,10 +25,10 @@ class LowsideCurrentSense: public CurrentSense{
       @param phB B phase adc pin
       @param phC C phase adc pin (optional)
     */
-    LowsideCurrentSense(float shunt_resistor, float gain, int pinA, int pinB, int pinC = _NC);
+    LowsideCurrentSense();
 
     // CurrentSense interface implementing functions
-    int init() override;
+    int init(float shunt_resistor, float gain, volatile uint16_t * adc_a, volatile uint16_t * adc_b, volatile uint16_t * adc_c) override;
     PhaseCurrent_s getPhaseCurrents() override;
     int driverAlign(float align_voltage) override;
 
@@ -46,14 +50,7 @@ class LowsideCurrentSense: public CurrentSense{
   private:
 
     // hardware variables
-  	int pinA; //!< pin A analog pin for current measurement
-  	int pinB; //!< pin B analog pin for current measurement
-  	int pinC; //!< pin C analog pin for current measurement
-
-    // gain variables
-    float shunt_resistor; //!< Shunt resistor value
-    float amp_gain; //!< amp gain value
-    float volts_to_amps_ratio; //!< Volts to amps ratio
+  	volatile uint16_t * _adc_a, _adc_b, _adc_c;
 
     /**
      *  Function finding zero offsets of the ADC

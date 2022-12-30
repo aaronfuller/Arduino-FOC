@@ -5,15 +5,16 @@
 /** MagneticSensorAnalog(volatile uint16_t * adc_val)
  * @param adc_val adc value for sensor
  */
-megatron_cw360_4220::megatron_cw360_4220(volatile uint16_t * adc_val) {
-    this->_adc_val = adc_val;
+megatron_cw360_4220::megatron_cw360_4220() {
+    
 }
 
-void megatron_cw360_4220::init(){
+void megatron_cw360_4220::init(volatile uint16_t * adc_val){
+    this->_adc_val = adc_val;
     // Start max below probable minimum value for the max
-    this->_adc_max = (uint16_t)(INIT_MAX_V / VREF) * (0xFFF);
+    this->_adc_max = (uint16_t)(INIT_MAX_V / VREF) * (ADC_MAX);
     // Start min above probable max value for the min
-    this->_adc_min = (uint16_t)(INIT_MIN_V / VREF) * (0xFFF);
+    this->_adc_min = (uint16_t)(INIT_MIN_V / VREF) * (ADC_MAX);
     this->_adc_range = _adc_max - _adc_min;
 
     this->Sensor::init(); // call base class init
