@@ -9,6 +9,7 @@
 #include "../defaults.h"
 #include "../pid.h"
 #include "../lowpass_filter.h"
+#include "../Print.h"
 
 
 // monitoring bitmap
@@ -62,7 +63,6 @@ enum FOCMotorStatus : uint8_t {
   motor_calib_failed  = 0x0E,     //!< Motor calibration failed (possibly recoverable)
   motor_init_failed   = 0x0F,     //!< Motor initialization failed (not recoverable)
 };
-
 
 
 /**

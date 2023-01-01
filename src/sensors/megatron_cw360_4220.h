@@ -1,9 +1,9 @@
 #ifndef MEGATRON_CW360_4220
 #define MEGATRON_CW360_4220
 #define VREF 3.3f
-#define ADC_MAX 0xFFF
-#define INIT_MAX_V 2.55f
-#define INIT_MIN_V 0.60f
+#define ADC_MAX 0xFFFF
+#define INIT_MAX_V 1.85f
+#define INIT_MIN_V 0.90f
 
 #include "../common/base_classes/Sensor.h"
 
@@ -15,6 +15,7 @@ class megatron_cw360_4220: public Sensor{
         megatron_cw360_4220();
         void init(volatile uint16_t * adc_val);
         float getSensorAngle() override;
+        float last_measured_angle;
     
     private:
         /**

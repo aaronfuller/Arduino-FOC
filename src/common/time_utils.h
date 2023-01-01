@@ -2,6 +2,7 @@
 #define TIME_UTILS_H
 
 #include "foc_utils.h"
+#include "stm32g4xx_hal.h"
 
 /** 
  * Function implementing delay() function in milliseconds 

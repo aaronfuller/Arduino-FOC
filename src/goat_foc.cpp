@@ -3,10 +3,8 @@
 
 #include "BLDCMotor.h"
 #include "sensors/megatron_cw360_4220.h"
-#include "sensors/GenericSensor.h"
 #include "drivers/BLDCDriver3PWM.h"
 #include "current_sense/LowsideCurrentSense.h"
-#include "current_sense/GenericCurrentSense.h"
 
 BLDCDriver3PWM driver;
 megatron_cw360_4220 sensor;
@@ -28,6 +26,7 @@ void initialize_driver(
     ) 
 {
     driver.voltage_power_supply = BATTERY_VOLTAGE;
+    driver.pwm_frequency = 36603.22;
     driver.init(
         phA_timer, phA_channel,
         phB_timer, phB_channel,
@@ -43,6 +42,7 @@ void initialize_driver(
 // C wrapper to initialize megatron encoder
 void initialize_encoder(volatile uint16_t * adc_val) {
     sensor.init(adc_val);
+    sensor_initialized = 1;
 }
 
 // C wrapper to initialize current sense hardware
@@ -55,21 +55,27 @@ void initialize_current_sense(float shunt_resistor, float gain, volatile uint16_
 // C wrapper to initialize the motor
 int initialize_motor(int pole_pairs, float phase_resistance, float kv) {
     // create motor object
-    motor = std::make_unique<BLDCMotor>(pole_pairs, phase_resistance, kv);
+    motor = std::make_unique<BLDCMotor>(pole_pairs, phase_resistance, kv*1.0f);
 
     // set some motor settings
-    // motor->controller = MotionControlType::
 
     // link hardware
     if (driver_initialized && sensor_initialized && current_sense_initialized) {
         motor->linkDriver(&driver);
-        motor->linkSensor(&sensor);
-        motor->linkCurrentSense(&current_sense);
+        // motor->linkSensor(&sensor);
+        // motor->linkCurrentSense(&current_sense);
     } else return 1;
+
+    motor->motion_downsample = 100;
+    motor->controller = MotionControlType::velocity_openloop;
+    motor->current_limit = 44.0f;
+    motor->torque_controller = TorqueControlType::voltage;
+    motor->voltage_limit = 2.0f;
+    // motor->foc_modulation = FOCModulationType::Trapezoid_120;
 
     // initialize motor
     motor->init();
-    motor->initFOC();
+    // motor->initFOC();
 
     // return success
     return 0;
@@ -77,6 +83,6 @@ int initialize_motor(int pole_pairs, float phase_resistance, float kv) {
 
 // C wrapper to call the FOC loop
 void loop_goat_foc() {
-    motor->loopFOC();
-    motor->move(2);
+    // motor->loopFOC();
+    motor->move(0.5);
 }

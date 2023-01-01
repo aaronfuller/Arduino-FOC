@@ -6,7 +6,7 @@ class BLDCDriver{
     public:
 
         /** Initialise hardware */
-        virtual int init() = 0;
+        // virtual int init() = 0;
         /** Enable hardware */
         virtual void enable() = 0;
         /** Disable hardware */

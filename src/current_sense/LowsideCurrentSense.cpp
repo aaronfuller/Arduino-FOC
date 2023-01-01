@@ -30,8 +30,11 @@ int LowsideCurrentSense::init(float shunt_resistor, float gain, volatile uint16_
     this->gain_c = volts_to_amps_ratio;
 
     calibrateOffsets();
+
     // set the initialized flag
+    this->initialized = true;
     // initialized = (params!=SIMPLEFOC_CURRENT_SENSE_INIT_FAILED);
+
     // return success
     return 1;
 }
@@ -46,10 +49,10 @@ void LowsideCurrentSense::calibrateOffsets(){
     // read the adc voltage 1000 times ( arbitrary number )
     for (int i = 0; i < calibration_rounds; i++) {
         // _startADC3PinConversionLowSide();
-        this->offset_ia += (((float)(*(this->_adc_a)) / (float)ADC_MAX) * VREF);
-        this->offset_ib += (((float)(*(this->_adc_b)) / (float)ADC_MAX) * VREF);
-        this->offset_ic += (((float)(*(this->_adc_c)) / (float)ADC_MAX) * VREF);
-        HAL_Delay(1);
+        this->offset_ia += ((double)(*(this->_adc_a)) / (double)ADC_MAX) * VREF;
+        this->offset_ib += ((double)(*(this->_adc_b)) / (double)ADC_MAX) * VREF;
+        this->offset_ic += ((double)(*(this->_adc_c)) / (double)ADC_MAX) * VREF;
+        _delay(1);
     }
     // calculate the mean offsets
     this->offset_ia = this->offset_ia / calibration_rounds;

@@ -6,14 +6,14 @@
 #include "../common/time_utils.h"
 #include "../common/defaults.h"
 
-extern "C" {
+// extern "C" {
   #include "stm32g4xx_hal.h"
-  // #include "stm32g4xx_hal_tim.h"
-  // #include "stm32g4xx_hal_gpio.h"
-}
+  #include "stm32g4xx_hal_tim.h"
+  #include "stm32g4xx_hal_gpio.h"
+// }
 
-#define ARR_VALUE 2047.0f
-#define DRIVER_ENABLE_ACTIVE_HIGH false
+#define ARR_VALUE 4097.0f
+#define DRIVER_ENABLE_ACTIVE_HIGH true
 
 #if (DRIVER_ENABLE_ACTIVE_HIGH == true)
 #define DRIVER_ENABLE GPIO_PIN_SET
@@ -42,17 +42,25 @@ class BLDCDriver3PWM: public BLDCDriver
       GPIO_TypeDef* enable_a_gpio_bank, uint16_t enable_a_pin,
       GPIO_TypeDef* enable_b_gpio_bank, uint16_t enable_b_pin,
       GPIO_TypeDef* enable_c_gpio_bank, uint16_t enable_c_pin
-      ) override;
+      );
     /** Motor disable function */
   	void disable() override;
     /** Motor enable function */
     void enable() override;
 
     // hardware variables
-  	TIM_HandleTypeDef* _phA_timer, _phB_timer, _phC_timer;
-    uint32_t _phA_channel, _phB_channel, _phC_channel;
-    GPIO_TypeDef* _enable_a_gpio_bank, _enable_b_gpio_bank, _enable_c_gpio_bank;
-    uint16_t _enable_a_pin, _enable_b_pin, _enable_c_pin;
+  	TIM_HandleTypeDef* _phA_timer;
+    TIM_HandleTypeDef* _phB_timer;
+    TIM_HandleTypeDef* _phC_timer;
+    uint32_t _phA_channel;
+    uint32_t _phB_channel;
+    uint32_t _phC_channel;
+    GPIO_TypeDef* _enable_a_gpio_bank;
+    GPIO_TypeDef* _enable_b_gpio_bank;
+    GPIO_TypeDef* _enable_c_gpio_bank;
+    uint16_t _enable_a_pin;
+    uint16_t _enable_b_pin;
+    uint16_t _enable_c_pin;
 
     /** 
      * Set phase voltages to the harware 

@@ -1,5 +1,6 @@
 #include "BLDCMotor.h"
 #include "./communication/SimpleFOCDebug.h"
+#include <cmath>
 
 // BLDCMotor( int pp , float R)
 // - pp            - pole pair number
@@ -517,7 +518,7 @@ void BLDCMotor::setPhaseVoltage(float Uq, float Ud, float angle_el) {
       Uc = -0.5f * Ualpha - _SQRT3_2 * Ubeta + center;
 
       if (!modulation_centered) {
-        float Umin = min(Ua, min(Ub, Uc));
+        float Umin = fminf(Ua, fminf(Ub, Uc));
         Ua -= Umin;
         Ub -= Umin;
         Uc -= Umin;

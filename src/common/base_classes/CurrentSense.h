@@ -17,7 +17,7 @@ class CurrentSense{
      *   
      * @returns -  0 - for failure &  1 - for success 
      */
-    virtual int init() = 0;
+    // virtual int init() = 0;
     
     /**
      * Linking the current sense with the motor driver

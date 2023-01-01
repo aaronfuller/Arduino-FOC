@@ -1,7 +1,7 @@
 #include "Commander.h"
 
-Commander::Commander(Stream& serial, char eol, bool echo){
-  com_port = &serial;
+Commander::Commander(Stream * serial, char eol, bool echo){
+  this->com_port = serial;
   this->eol = eol;
   this->echo = echo;
 }
@@ -20,15 +20,15 @@ void Commander::add(char id, CommandCallback onCommand, char* label ){
 
 
 void Commander::run(){
-  if(!com_port) return;
-  run(*com_port, eol);
+  if(!(this->com_port)) return;
+  run(*(this->com_port), eol);
 }
 
 void Commander::run(Stream& serial, char eol){
-  Stream* tmp = com_port; // save the serial instance
+  Stream* tmp = this->com_port; // save the serial instance
   char eol_tmp = this->eol;
   this->eol = eol;
-  com_port = &serial;
+  this->com_port = &serial;
 
   // a string to hold incoming data
   while (serial.available()) {
@@ -52,7 +52,7 @@ void Commander::run(Stream& serial, char eol){
     }
   }
 
-  com_port = tmp; // reset the instance to the internal value
+  this->com_port = tmp; // reset the instance to the internal value
   this->eol = eol_tmp;
 }
 
@@ -566,45 +566,45 @@ bool Commander::isSentinel(char ch)
 }
 
 void Commander::print(const int number){
-  if( !com_port || verbose == VerboseMode::nothing ) return;
-  com_port->print(number);
+  if( !(this->com_port) || verbose == VerboseMode::nothing ) return;
+  this->com_port->print(number);
 }
 void Commander::print(const float number){
-  if(!com_port || verbose == VerboseMode::nothing ) return;
-  com_port->print((float)number,(int)decimal_places);
+  if(!(this->com_port) || verbose == VerboseMode::nothing ) return;
+  this->com_port->print((float)number,(int)decimal_places);
 }
 void Commander::print(const char* message){
-  if(!com_port || verbose == VerboseMode::nothing ) return;
-  com_port->print(message);
+  if(!(this->com_port) || verbose == VerboseMode::nothing ) return;
+  this->com_port->print(message);
 }
 void Commander::print(const __FlashStringHelper *message){
-  if(!com_port || verbose == VerboseMode::nothing ) return;
-  com_port->print(message);
+  if(!(this->com_port) || verbose == VerboseMode::nothing ) return;
+  this->com_port->print(message);
 }
 void Commander::print(const char message){
-  if(!com_port || verbose == VerboseMode::nothing ) return;
-  com_port->print(message);
+  if(!(this->com_port) || verbose == VerboseMode::nothing ) return;
+  this->com_port->print(message);
 }
 
 void Commander::println(const int number){
-  if(!com_port || verbose == VerboseMode::nothing ) return;
-  com_port->println(number);
+  if(!(this->com_port) || verbose == VerboseMode::nothing ) return;
+  this->com_port->println(number);
 }
 void Commander::println(const float number){
-  if(!com_port || verbose == VerboseMode::nothing ) return;
-  com_port->println((float)number, (int)decimal_places);
+  if(!(this->com_port) || verbose == VerboseMode::nothing ) return;
+  this->com_port->println((float)number, (int)decimal_places);
 }
 void Commander::println(const char* message){
-  if(!com_port || verbose == VerboseMode::nothing ) return;
-  com_port->println(message);
+  if(!(this->com_port) || verbose == VerboseMode::nothing ) return;
+  this->com_port->println(message);
 }
 void Commander::println(const __FlashStringHelper *message){
-  if(!com_port || verbose == VerboseMode::nothing ) return;
-  com_port->println(message);
+  if(!(this->com_port) || verbose == VerboseMode::nothing ) return;
+  this->com_port->println(message);
 }
 void Commander::println(const char message){
-  if(!com_port || verbose == VerboseMode::nothing ) return;
-  com_port->println(message);
+  if(!(this->com_port) || verbose == VerboseMode::nothing ) return;
+  this->com_port->println(message);
 }
 
 
