@@ -19,8 +19,16 @@ void initialize_driver(
     GPIO_TypeDef* enable_b_gpio_bank, uint16_t enable_b_pin,
     GPIO_TypeDef* enable_c_gpio_bank, uint16_t enable_c_pin
     );
-void initialize_encoder(volatile uint16_t * adc_val);
-void initialize_current_sense(float shunt_resistor, float gain, volatile uint16_t * adc_a, volatile uint16_t * adc_b, volatile uint16_t * adc_c);
+void initialize_encoder(volatile uint16_t * adc_val, volatile uint32_t * adc_tick_updated);
+void initialize_current_sense(
+    float shunt_resistor, 
+    float gain, 
+    volatile uint16_t * adc_a, 
+    volatile uint16_t * adc_b, 
+    volatile uint16_t * adc_c, 
+    volatile uint32_t * adc_1_tick_updated, 
+    volatile uint32_t * adc_2_tick_updated
+    );
 int initialize_motor(int pole_pairs, float phase_resistance, float kv);
 
 

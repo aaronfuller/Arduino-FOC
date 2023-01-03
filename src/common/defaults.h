@@ -3,7 +3,7 @@
 
 #define DEF_POWER_SUPPLY 12.0f //!< default power supply voltage
 // velocity PI controller params
-#define DEF_PID_VEL_P 0.02f //!< default PID controller P value -- original 0.5
+#define DEF_PID_VEL_P 0.5f //!< default PID controller P value -- original 0.5
 #define DEF_PID_VEL_I 10.0f //!<  default PID controller I value -- original 10
 #define DEF_PID_VEL_D 0.0f //!<  default PID controller D value
 #define DEF_PID_VEL_RAMP 1000.0f //!< default PID controller voltage ramp value
@@ -21,7 +21,7 @@
 #else
 // for stm32, due, teensy, esp32 and similar
 #define DEF_PID_CURR_P 3 //!< default PID controller P value
-#define DEF_PID_CURR_I 0.0f //!<  default PID controller I value -- 300 original
+#define DEF_PID_CURR_I 300.0f //!<  default PID controller I value -- 300 original
 #define DEF_PID_CURR_D 0.0f //!<  default PID controller D value
 #define DEF_PID_CURR_RAMP 0  //!< default PID controller voltage ramp value
 #define DEF_PID_CURR_LIMIT (DEF_POWER_SUPPLY) //!< default PID controller voltage limit

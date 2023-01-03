@@ -29,11 +29,11 @@ int BLDCDriver3PWM::init(
   // enable_pin pin
   this->_enable_a_gpio_bank = enable_a_gpio_bank;
   this->_enable_b_gpio_bank = enable_b_gpio_bank;
-  this->_enable_b_gpio_bank = enable_b_gpio_bank;
+  this->_enable_c_gpio_bank = enable_c_gpio_bank;
 
   this->_enable_a_pin = enable_a_pin;
   this->_enable_b_pin = enable_b_pin;
-  this->_enable_b_pin = enable_b_pin;
+  this->_enable_c_pin = enable_c_pin;
 
   // sanity check for the voltage limit configuration
   if(!_isset(voltage_limit) || voltage_limit > voltage_power_supply) voltage_limit = voltage_power_supply;

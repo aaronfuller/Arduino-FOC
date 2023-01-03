@@ -1,7 +1,7 @@
 #ifndef MEGATRON_CW360_4220
 #define MEGATRON_CW360_4220
 #define VREF 3.3f
-#define ADC_MAX 0xFFFF
+#define ADC_MAX 0xFFF
 #define INIT_MAX_V 1.85f
 #define INIT_MIN_V 0.90f
 
@@ -13,7 +13,7 @@ class megatron_cw360_4220: public Sensor{
          * Encoder class constructor
          */
         megatron_cw360_4220();
-        void init(volatile uint16_t * adc_val);
+        void init(volatile uint16_t * adc_val, volatile uint32_t * adc_tick_updated);
         float getSensorAngle() override;
         float last_measured_angle;
     
@@ -22,6 +22,9 @@ class megatron_cw360_4220: public Sensor{
          * Function getting current angle register value
          * it uses angle_register variable
          */
+        volatile uint32_t * _adc_tick_updated;
+        uint32_t _last_adc_tick_updated;
+
         volatile uint16_t * _adc_val;
         uint16_t _adc_max;
         uint16_t _adc_min;

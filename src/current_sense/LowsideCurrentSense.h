@@ -13,7 +13,7 @@ extern "C" {
 }
 
 #define VREF 3.3f
-#define ADC_MAX 0xFFFF
+#define ADC_MAX 0xFFF
 
 class LowsideCurrentSense: public CurrentSense{
   public:
@@ -28,7 +28,7 @@ class LowsideCurrentSense: public CurrentSense{
     LowsideCurrentSense();
 
     // CurrentSense interface implementing functions
-    int init(float shunt_resistor, float gain, volatile uint16_t * adc_a, volatile uint16_t * adc_b, volatile uint16_t * adc_c);
+    int init(float shunt_resistor, float gain, volatile uint16_t * adc_a, volatile uint16_t * adc_b, volatile uint16_t * adc_c, volatile uint32_t * adc_1_tick_updated, volatile uint32_t * adc_2_tick_updated);
     PhaseCurrent_s getPhaseCurrents() override;
     int driverAlign(float align_voltage) override;
 
@@ -48,6 +48,10 @@ class LowsideCurrentSense: public CurrentSense{
     float offset_ib; //!< zero current B voltage value (center of the adc reading)
     float offset_ic; //!< zero current C voltage value (center of the adc reading)
   private:
+    volatile uint32_t * _adc_1_tick_updated;
+    volatile uint32_t * _adc_2_tick_updated;
+    uint32_t _adc_1_last_updated;
+    uint32_t _adc_2_last_updated;
 
     // hardware variables
   	volatile uint16_t * _adc_a;

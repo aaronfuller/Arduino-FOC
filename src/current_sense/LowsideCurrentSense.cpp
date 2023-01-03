@@ -11,7 +11,7 @@ LowsideCurrentSense::LowsideCurrentSense(){
 }
 
 // Lowside sensor init function
-int LowsideCurrentSense::init(float shunt_resistor, float gain, volatile uint16_t * adc_a, volatile uint16_t * adc_b, volatile uint16_t * adc_c){
+int LowsideCurrentSense::init(float shunt_resistor, float gain, volatile uint16_t * adc_a, volatile uint16_t * adc_b, volatile uint16_t * adc_c, volatile uint32_t * adc_1_tick_updated, volatile uint32_t * adc_2_tick_updated){
     // configure ADC variables
     // params = _configureADCLowSide(driver->params,pinA,pinB,pinC);
     // // if init failed return fail
@@ -19,6 +19,9 @@ int LowsideCurrentSense::init(float shunt_resistor, float gain, volatile uint16_
     // // sync the driver
     // _driverSyncLowSide(driver->params, params);
     // calibrate zero offsets
+    this->_adc_1_tick_updated = adc_1_tick_updated;
+    this->_adc_2_tick_updated = adc_2_tick_updated;
+
     this->_adc_a = adc_a;
     this->_adc_b = adc_b;
     this->_adc_c = adc_c;
@@ -40,7 +43,7 @@ int LowsideCurrentSense::init(float shunt_resistor, float gain, volatile uint16_
 }
 // Function finding zero offsets of the ADC
 void LowsideCurrentSense::calibrateOffsets(){    
-    const int calibration_rounds = 1000;
+    const int calibration_rounds = 50;
 
     // find adc offset = zero current voltage
     this->offset_ia = 0;
@@ -49,6 +52,13 @@ void LowsideCurrentSense::calibrateOffsets(){
     // read the adc voltage 1000 times ( arbitrary number )
     for (int i = 0; i < calibration_rounds; i++) {
         // _startADC3PinConversionLowSide();
+        while (*(this->_adc_1_tick_updated) == this->_adc_1_last_updated)
+            continue;
+        this->_adc_1_last_updated = *(this->_adc_1_tick_updated);
+        while (*(this->_adc_2_tick_updated) == this->_adc_2_last_updated)
+            continue;
+        this->_adc_2_last_updated = *(this->_adc_2_tick_updated);
+
         this->offset_ia += ((double)(*(this->_adc_a)) / (double)ADC_MAX) * VREF;
         this->offset_ib += ((double)(*(this->_adc_b)) / (double)ADC_MAX) * VREF;
         this->offset_ic += ((double)(*(this->_adc_c)) / (double)ADC_MAX) * VREF;
@@ -64,6 +74,13 @@ void LowsideCurrentSense::calibrateOffsets(){
 PhaseCurrent_s LowsideCurrentSense::getPhaseCurrents(){
     PhaseCurrent_s current;
     // _startADC3PinConversionLowSide();
+    while (*(this->_adc_1_tick_updated) == this->_adc_1_last_updated)
+        continue;
+    this->_adc_1_last_updated = *(this->_adc_1_tick_updated);
+    while (*(this->_adc_2_tick_updated) == this->_adc_2_last_updated)
+        continue;
+    this->_adc_2_last_updated = *(this->_adc_2_tick_updated);
+
     current.a = ((((float)(*(this->_adc_a)) / (float)ADC_MAX) * VREF) - this->offset_ia) * this->gain_a;// amps
     current.b = ((((float)(*(this->_adc_b)) / (float)ADC_MAX) * VREF) - this->offset_ib) * this->gain_b;// amps
     current.c = ((((float)(*(this->_adc_b)) / (float)ADC_MAX) * VREF) - this->offset_ic) * this->gain_c; // amps
