@@ -26,6 +26,9 @@ void megatron_cw360_4220::init(ADC_HandleTypeDef * hadc){
     this->_sConfig.OffsetNumber = ADC_OFFSET_NONE;
     this->_sConfig.Offset = 0;
 
+    // Setup minimum ts delta
+    minimum_ts_delta = (unsigned long)(1.0f / maximum_plausible_speed) * 1000000;
+
     // initialize all the internal variables of Sensor to ensure a "smooth" startup (without a 'jump' from zero)
     getSensorAngle(); // call once
     _delay(1);

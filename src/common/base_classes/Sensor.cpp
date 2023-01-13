@@ -6,8 +6,11 @@
 #define VEL_CALC_HIST_LEN 50
 #define STD_DEVIATIONS 0.1
 
+const int xts_index_lookup_two_back[] = {1, 2, 0, 1, 2, 3, 4};
+const int xts_index_lookup_three_back[] = {2, 3, 4, 0, 1, 2, 3};
+
 void Sensor::update() {
-    uint32_t before_timestamp = _micros();
+    unsigned long before_timestamp = _micros();
     float val = getSensorAngle();
     angle_prev_ts = ((_micros() - before_timestamp) / 2) + before_timestamp;
     float d_angle = val - angle_prev;
@@ -16,50 +19,67 @@ void Sensor::update() {
     angle_prev = val;
 
 
-    const float threshold = _PI;
+    // const float threshold = _PI;
+    // float temp_velocity = 0;
 
-    if (angle_prev < threshold && top_bottom == 1) {
-        top_bottom = 0;
+    // if (angle_prev < threshold && top_bottom == 1) {
+    //     top_bottom = 0;
 
-        // Linear interpolation of new timestamp for crossing threshold
-        xts_1 = xts_2;
-        xts_2 = xts_3;
-        xts_3 = (((angle_prev_ts - vel_angle_prev_ts) / (angle_prev - vel_angle_prev)) * (threshold - vel_angle_prev)) + vel_angle_prev_ts;
+    //     // Linear interpolation of new timestamp for crossing threshold
+    //     xts[xts_index] = (unsigned long)(((float)(angle_prev_ts - vel_angle_prev_ts) / (angle_prev - vel_angle_prev)) * (threshold - vel_angle_prev)) + vel_angle_prev_ts;
+        
+    //     // Check to see if plausible. If not, likely a dirac delta due to poor sampling.
+    //     // if ((xts[xts_index] - xts[xts_index_lookup_two_back[xts_index]]) < minimum_ts_delta)
+    //     //     xts_index = xts_index_lookup_three_back[xts_index];
+    //     // else {
+    //         // Calculate the new velocity
+    //         temp_velocity = 1 / ((xts[xts_index] - xts[xts_index_lookup_two_back[xts_index]]) * 1e-6);
+    //         if (temp_velocity < maximum_plausible_speed)
+    //             velocity = temp_velocity;
+    //     // }
 
-        // Calculate the new velocity
-        if (xts_3 != xts_1)
-            velocity = 1 / ((xts_3 - xts_1) * 1e-6);
-    } else if (angle_prev > threshold && top_bottom == 0) {
-        top_bottom = 1;
+    //     ++xts_index;
+    //     if (xts_index == 7)
+    //         xts_index = 0;
+    // } else if (angle_prev > threshold && top_bottom == 0) {
+    //     top_bottom = 1;
 
-        // Linear interpolation of new timestamp for crossing threshold
-        xts_1 = xts_2;
-        xts_2 = xts_3;
-        xts_3 = (((angle_prev_ts - vel_angle_prev_ts) / (angle_prev - vel_angle_prev)) * (threshold - vel_angle_prev)) + vel_angle_prev_ts;
+    //     // Linear interpolation of new timestamp for crossing threshold
+    //     xts[xts_index] = (unsigned long)(((float)(angle_prev_ts - vel_angle_prev_ts) / (angle_prev - vel_angle_prev)) * (threshold - vel_angle_prev)) + vel_angle_prev_ts;
+        
+    //     // Check to see if plausible. If not, likely a dirac delta due to poor sampling.
+    //     // if ((xts[xts_index] - xts[xts_index_lookup_two_back[xts_index]]) < minimum_ts_delta)
+    //     //     xts_index = xts_index_lookup_three_back[xts_index];
+    //     // else {
+    //         // Calculate the new velocity
+    //         temp_velocity = 1 / ((xts[xts_index] - xts[xts_index_lookup_two_back[xts_index]]) * 1e-6);
+    //         if (temp_velocity < maximum_plausible_speed)
+    //             velocity = temp_velocity;
+    //     // }
 
-        // Calculate the new velocity
-        if (xts_3 != xts_1)
-            velocity = 1 / ((xts_3 - xts_1) * 1e-6);
-    }
+    //     ++xts_index;
+    //     if (xts_index == 7)
+    //         xts_index = 0;
+    // }
 
-    vel_angle_prev = angle_prev;
-    vel_angle_prev_ts = angle_prev_ts;
+    // velocity = (((full_rotations * _2PI) + angle_prev) - ((vel_full_rotations * _2PI) + vel_angle_prev)) / Ts;
+    // vel_angle_prev = angle_prev;
+    // vel_angle_prev_ts = angle_prev_ts;
 }
 
 
  /** get current angular velocity (rad/s) */
 float Sensor::getVelocity() {
     // calculate sample time
-    // float Ts = (angle_prev_ts - vel_angle_prev_ts)*1e-6;
-    // if (Ts < min_elapsed_time) return velocity; // don't update velocity if Ts is too small
+    float Ts = (angle_prev_ts - vel_angle_prev_ts)*1e-6;
+    if (Ts < min_elapsed_time) return velocity; // don't update velocity if Ts is too small
+    // if ((angle_prev - vel_angle_prev) > (_2PI / 7.0f)) return velocity;
 
-    // velocity = ( (float)(full_rotations - vel_full_rotations)*_2PI + (angle_prev - vel_angle_prev) ) / Ts;
+    velocity = ( (float)(full_rotations - vel_full_rotations)*_2PI + (angle_prev - vel_angle_prev) ) / Ts;
     // float angle_diff = atan2(sin(angle_prev - vel_angle_prev), cos(angle_prev - vel_angle_prev));
     // velocity = angle_diff / Ts;
-    // velocity = (angle_prev - vel_angle_prev) / Ts;
 
     
-    return velocity;
     
 
     // vel_full_rotations = full_rotations;
@@ -122,6 +142,11 @@ float Sensor::getVelocity() {
         //     return previous_adjusted_mean;
     // } else
     //     return velocity;
+    
+    vel_angle_prev = angle_prev;
+    vel_angle_prev_ts = angle_prev_ts;
+    vel_full_rotations = full_rotations;
+    return velocity;
 }
 
 

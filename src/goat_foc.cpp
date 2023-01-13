@@ -15,6 +15,9 @@ int driver_initialized = 0;
 int sensor_initialized = 0;
 int current_sense_initialized = 0;
 
+// REMOVE - FOR DEBUGGING
+int xts_index_lookup[] = {1, 2, 0};
+
 // C wrapper to initialize driver object
 void initialize_driver(
     TIM_HandleTypeDef* phA_timer, uint32_t phA_channel,
