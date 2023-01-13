@@ -9,16 +9,22 @@ megatron_cw360_4220::megatron_cw360_4220() {
     
 }
 
-void megatron_cw360_4220::init(volatile uint16_t * adc_val, volatile uint32_t * adc_tick_updated){
-    this->_adc_tick_updated = adc_tick_updated;
-    this->_last_adc_tick_updated = 0;
-    
-    this->_adc_val = adc_val;
+void megatron_cw360_4220::init(ADC_HandleTypeDef * hadc){
+    this->_hadc = hadc;
     // Start max below probable minimum value for the max
-    this->_adc_max = (uint16_t)((INIT_MAX_V / VREF) * (ADC_MAX));
+    // this->_adc_max = (uint16_t)((INIT_MAX_V / VREF) * (ADC_MAX));
+    this->_adc_max = 459;
     // Start min above probable max value for the min
-    this->_adc_min = (uint16_t)((INIT_MIN_V / VREF) * (ADC_MAX));
+    // this->_adc_min = (uint16_t)((INIT_MIN_V / VREF) * (ADC_MAX));
+    this->_adc_min = 92;
     this->_adc_range = _adc_max - _adc_min;
+
+    this->_sConfig.Channel = ENCODER_ADC_CHANNEL;
+    this->_sConfig.Rank = ADC_REGULAR_RANK_1;
+    this->_sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
+    this->_sConfig.SingleDiff = ADC_SINGLE_ENDED;
+    this->_sConfig.OffsetNumber = ADC_OFFSET_NONE;
+    this->_sConfig.Offset = 0;
 
     // initialize all the internal variables of Sensor to ensure a "smooth" startup (without a 'jump' from zero)
     getSensorAngle(); // call once
@@ -35,14 +41,22 @@ void megatron_cw360_4220::init(volatile uint16_t * adc_val, volatile uint32_t * 
 //  Shaft angle calculation
 //  angle is in radians [rad]
 float megatron_cw360_4220::getSensorAngle(){
-    // wait until new value from DMA
-    while (*(this->_adc_tick_updated) == (this->_last_adc_tick_updated));
-
     // raw data from the sensor
+    int num_samples = 4;
     float angle_measured;
-    uint16_t buf_val, buf_val_less_offset;
-    buf_val = *(this->_adc_val);
+    uint32_t buf_val = 0;
+    uint32_t buf_val_less_offset = 0;
 
+    if (HAL_ADC_ConfigChannel(this->_hadc, &(this->_sConfig)) != HAL_OK) {
+        // Error_Handler();
+    }
+    for (int count = 0; count < num_samples; count++) {
+        HAL_ADC_Start(this->_hadc);
+        HAL_ADC_PollForConversion(this->_hadc, HAL_MAX_DELAY);
+        buf_val += HAL_ADC_GetValue(this->_hadc);
+        HAL_ADC_Stop(this->_hadc);
+    }
+    buf_val /= num_samples;
     if (buf_val > this->_adc_max) {
         this->_adc_max = buf_val;
         this->_adc_range = _adc_max - _adc_min;
@@ -53,9 +67,12 @@ float megatron_cw360_4220::getSensorAngle(){
 
     buf_val_less_offset = buf_val - this->_adc_min;
     angle_measured = ((float)(buf_val_less_offset) / (float)(this->_adc_range)) * _2PI;
-    this->last_measured_angle = angle_measured * 57.2958;
+    angle_measured = (int)(angle_measured * 50 + .5);
+    angle_measured = (float)angle_measured / 50;
 
-    this->_last_adc_tick_updated = *(this->_adc_tick_updated);  
-    
+    // if (fabs(this->last_measured_angle - angle_measured) < ANGLE_CHANGE_THRESHOLD)
+    //     return this->last_measured_angle;
+
+    this->last_measured_angle = angle_measured;
     return angle_measured;
 }

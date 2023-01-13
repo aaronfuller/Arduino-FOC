@@ -7,12 +7,10 @@
 #include "../common/defaults.h"
 
 // extern "C" {
-  #include "stm32g4xx_hal.h"
-  #include "stm32g4xx_hal_tim.h"
-  #include "stm32g4xx_hal_gpio.h"
+#include "stm32g4xx_hal.h"
 // }
 
-#define ARR_VALUE 4097.0f
+#define ARR_VALUE 2047.0f
 #define DRIVER_ENABLE_ACTIVE_HIGH true
 
 #if (DRIVER_ENABLE_ACTIVE_HIGH == true)

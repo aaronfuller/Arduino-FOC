@@ -89,7 +89,7 @@ void BLDCDriver3PWM::setPwm(float Ua, float Ub, float Uc) {
 
   // hardware specific writing
   // hardware specific function - depending on driver and mcu
-  __HAL_TIM_SET_COMPARE(this->_phA_timer, this->_phA_channel, (int)(dc_a*ARR_VALUE));
-  __HAL_TIM_SET_COMPARE(this->_phB_timer, this->_phB_channel, (int)(dc_b*ARR_VALUE));
-  __HAL_TIM_SET_COMPARE(this->_phC_timer, this->_phC_channel, (int)(dc_c*ARR_VALUE));
+  __HAL_TIM_SET_COMPARE(this->_phA_timer, this->_phA_channel, (uint32_t)(dc_a*ARR_VALUE));
+  __HAL_TIM_SET_COMPARE(this->_phB_timer, this->_phB_channel, (uint32_t)(dc_b*ARR_VALUE));
+  __HAL_TIM_SET_COMPARE(this->_phC_timer, this->_phC_channel, (uint32_t)(dc_c*ARR_VALUE));
 }

@@ -105,7 +105,11 @@ class Sensor{
         /**
          * Minimum time between updates to velocity. If time elapsed is lower than this, the velocity is not updated.
          */
-        float min_elapsed_time = 0.000100; // default is 100 microseconds, or 10kHz
+        float min_elapsed_time = 0.000001; // default is 100 microseconds, or 10kHz
+        
+        float xts_1 = 0;
+        float xts_2 = 0;
+        float xts_3 = 0;
 
     protected:
         /** 
@@ -126,6 +130,7 @@ class Sensor{
         // virtual void init();
 
         // velocity calculation variables
+        int top_bottom = 1;
         float velocity=0.0f;
         float angle_prev=0.0f; // result of last call to getSensorAngle(), used for full rotations and velocity
         long angle_prev_ts=0; // timestamp of last call to getAngle, used for velocity

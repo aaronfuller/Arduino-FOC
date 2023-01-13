@@ -26,7 +26,7 @@ void initialize_driver(
     ) 
 {
     driver.voltage_power_supply = BATTERY_VOLTAGE;
-    driver.pwm_frequency = 36603.22;
+    driver.pwm_frequency = 150000000.0f / 2048.0f;
     driver.init(
         phA_timer, phA_channel,
         phB_timer, phB_channel,
@@ -40,17 +40,17 @@ void initialize_driver(
 }
 
 // C wrapper to initialize megatron encoder
-void initialize_encoder(volatile uint16_t * adc_val, volatile uint32_t * adc_tick_updated) {
-    sensor.init(adc_val, adc_tick_updated);
+void initialize_encoder(ADC_HandleTypeDef * hadc) {
+    sensor.init(hadc);
     sensor_initialized = 1;
 }
 
 // C wrapper to initialize current sense hardware
-// void initialize_current_sense(float shunt_resistor, float gain, volatile uint16_t * adc_a, volatile uint16_t * adc_b, volatile uint16_t * adc_c, volatile uint32_t * adc_1_tick_updated, volatile uint32_t * adc_2_tick_updated) {
-//     current_sense.init(shunt_resistor, gain, adc_a, adc_b, adc_c, adc_1_tick_updated, adc_2_tick_updated);
-//     if (driver_initialized) current_sense.linkDriver(&driver);
-//     current_sense_initialized = 1;
-// }
+void initialize_current_sense(float shunt_resistor, float gain, volatile uint16_t * adc_a, volatile uint16_t * adc_b, volatile uint16_t * adc_c, volatile uint32_t * adc_1_tick_updated, volatile uint32_t * adc_2_tick_updated) {
+    current_sense.init(shunt_resistor, gain, adc_a, adc_b, adc_c, adc_1_tick_updated, adc_2_tick_updated);
+    if (driver_initialized) current_sense.linkDriver(&driver);
+    current_sense_initialized = 1;
+}
 
 // C wrapper to initialize the motor
 int initialize_motor(int pole_pairs, float phase_resistance, float kv) {
@@ -60,38 +60,80 @@ int initialize_motor(int pole_pairs, float phase_resistance, float kv) {
     // set some motor settings
 
     // link hardware
-    if (driver_initialized && sensor_initialized && current_sense_initialized) {
-        motor->linkDriver(&driver);
-        motor->linkSensor(&sensor);
-        // motor->linkCurrentSense(&current_sense);
-    } else return 1;
+    motor->linkDriver(&driver);
+    motor->linkSensor(&sensor);
+    // if (driver_initialized && sensor_initialized && current_sense_initialized) {
+    //     // motor->linkCurrentSense(&current_sense);
+    // } else return 1;
+    
 
+    // motor->motion_downsample = 10;
 
-    motor->motion_downsample = 10;
+    motor->controller = MotionControlType::velocity_openloop;
 
-    motor->controller = MotionControlType::velocity;
-    motor->PID_velocity.P = 0.05;
-    motor->PID_velocity.I = 5;
-    motor->PID_velocity.D = 0.001;
-    motor->PID_velocity.output_ramp = 1000;
-    motor->LPF_velocity.Tf = 0.05;
+    // motor->PID_velocity.P = 0.375;
+    motor->PID_velocity.P = 1;
+    // motor->PID_velocity.I = 0.3;
+    motor->PID_velocity.I = 0;
+    // motor->PID_velocity.D = 0.0000001;
+    motor->PID_velocity.D = 0;
 
-    motor->current_limit = 44.0f;
+    motor->PID_velocity.output_ramp = 10000;
+    motor->LPF_velocity.Tf = 0;
+
+    motor->current_limit = 30.0f;
     motor->torque_controller = TorqueControlType::voltage;
-    motor->voltage_limit = 1.1f;
-    // motor->foc_modulation = FOCModulationType::Trapezoid_120;
+    motor->voltage_sensor_align = 1.0f;
+    motor->voltage_limit = 1.0f;
+    // motor->foc_modulation = FOCModulationType::Trapezoid_150;
+
+    // motor->velocity_limit = 0.1;
+
+    float offset = float(3.14159265359 / 100.0) * 91.5;  //where guess = somewhere between 0 to 200.
+    Direction direction = Direction::CCW;
 
     // initialize motor
     motor->init();
+    // motor->initFOC(offset, direction);
     motor->initFOC();
+
+    // motor->target = 1;
 
     // return success
     return 0;
 }
 
+float vel = 0;
+uint32_t start_loop;
+uint32_t end_loop;
+uint32_t loop_duration;
+float angle_diff;
+float current_angle = 0;
+float prev_angle = 0;
+// int count;
+// int position = 0;
 // C wrapper to call the FOC loop
 void loop_goat_foc() {
+    start_loop = _micros();
     motor->loopFOC();
-    // sensor.getSensorAngle();
-    motor->move(5);
+    end_loop = _micros();
+    loop_duration = end_loop - start_loop;
+    // sensor.update();
+    motor->move(15);
+
+    vel = motor->shaftVelocity();
+
+    // prev_angle = current_angle;
+    // current_angle = sensor.getMechanicalAngle();
+
+    
+
+    // angle_diff = fmod(current_angle, (_2PI / 2));
+    // if (count == 5000) {
+    //     count = 0;
+    //     position++;
+    //     if (position == 7)
+    //         position = 0;
+    // }
+    // count++;
 }

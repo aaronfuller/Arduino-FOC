@@ -19,7 +19,7 @@ void initialize_driver(
     GPIO_TypeDef* enable_b_gpio_bank, uint16_t enable_b_pin,
     GPIO_TypeDef* enable_c_gpio_bank, uint16_t enable_c_pin
     );
-void initialize_encoder(volatile uint16_t * adc_val, volatile uint32_t * adc_tick_updated);
+void initialize_encoder(ADC_HandleTypeDef * hadc);
 void initialize_current_sense(
     float shunt_resistor, 
     float gain, 

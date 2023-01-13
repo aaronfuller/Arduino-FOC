@@ -13,7 +13,7 @@ extern "C" {
 }
 
 #define VREF 3.3f
-#define ADC_MAX 0xFFF
+#define ADC_MAX 0x3FF
 
 class LowsideCurrentSense: public CurrentSense{
   public:
