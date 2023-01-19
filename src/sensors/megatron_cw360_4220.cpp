@@ -27,7 +27,7 @@ void megatron_cw360_4220::init(ADC_HandleTypeDef * hadc){
     this->_sConfig.Offset = 0;
 
     // Setup minimum ts delta
-    minimum_ts_delta = (unsigned long)(1.0f / maximum_plausible_speed) * 1000000;
+    // minimum_ts_delta = (unsigned long)(1.0f / maximum_plausible_speed) * 1000000;
 
     // initialize all the internal variables of Sensor to ensure a "smooth" startup (without a 'jump' from zero)
     getSensorAngle(); // call once
@@ -45,7 +45,7 @@ void megatron_cw360_4220::init(ADC_HandleTypeDef * hadc){
 //  angle is in radians [rad]
 float megatron_cw360_4220::getSensorAngle(){
     // raw data from the sensor
-    int num_samples = 4;
+    int num_samples = 1;
     float angle_measured;
     uint32_t buf_val = 0;
     uint32_t buf_val_less_offset = 0;

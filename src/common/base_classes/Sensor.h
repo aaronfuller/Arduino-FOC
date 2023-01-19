@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 
+#define VELOCITY_HISTORY_LEN 10
+
 /**
  *  Direction structure
  */
@@ -105,12 +107,7 @@ class Sensor{
         /**
          * Minimum time between updates to velocity. If time elapsed is lower than this, the velocity is not updated.
          */
-        float min_elapsed_time = 0.000001; // default is 100 microseconds, or 10kHz
-        float maximum_plausible_speed = 600;
-
-        unsigned long minimum_ts_delta = 0;
-        int xts_index = 0;
-        unsigned long xts[7] = {0};
+        float min_elapsed_time = 0.0200; // default is 100 microseconds, or 10kHz
 
     protected:
         /** 
@@ -128,15 +125,16 @@ class Sensor{
          * to current values, ensuring there is no discontinuity ("jump from zero") during the first calls
          * to sensor.getAngle() and sensor.getVelocity()
          */
-        // virtual void init();
+        virtual void init();
 
         // velocity calculation variables
-        int top_bottom = 1;
+        float velocity_history[VELOCITY_HISTORY_LEN] = {0.0f};
+        int velocity_history_index = 0;
         float velocity=0.0f;
         float angle_prev=0.0f; // result of last call to getSensorAngle(), used for full rotations and velocity
-        unsigned long angle_prev_ts=0; // timestamp of last call to getAngle, used for velocity
+        long angle_prev_ts=0; // timestamp of last call to getAngle, used for velocity
         float vel_angle_prev=0.0f; // angle at last call to getVelocity, used for velocity
-        unsigned long vel_angle_prev_ts=0; // last velocity calculation timestamp
+        long vel_angle_prev_ts=0; // last velocity calculation timestamp
         int32_t full_rotations=0; // full rotation tracking
         int32_t vel_full_rotations=0; // previous full rotation value for velocity calculation
 };

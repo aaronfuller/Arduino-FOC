@@ -12,6 +12,8 @@ int BLDCDriver3PWM::init(
   TIM_HandleTypeDef* phA_timer, uint32_t phA_channel,
   TIM_HandleTypeDef* phB_timer, uint32_t phB_channel,
   TIM_HandleTypeDef* phC_timer, uint32_t phC_channel,
+  TIM_HandleTypeDef* adc_timer_1, uint32_t adc_tim_channel_1,
+  TIM_HandleTypeDef* adc_timer_2, uint32_t adc_tim_channel_2,
   GPIO_TypeDef* enable_a_gpio_bank, uint16_t enable_a_pin,
   GPIO_TypeDef* enable_b_gpio_bank, uint16_t enable_b_pin,
   GPIO_TypeDef* enable_c_gpio_bank, uint16_t enable_c_pin
@@ -21,10 +23,14 @@ int BLDCDriver3PWM::init(
   this->_phA_timer = phA_timer;
   this->_phB_timer = phB_timer;
   this->_phC_timer = phC_timer;
+  this->_adc_timer_1 = adc_timer_1;
+  this->_adc_timer_2 = adc_timer_2;
 
   this->_phA_channel = phA_channel;
   this->_phB_channel = phB_channel;
   this->_phC_channel = phC_channel;
+  this->_adc_tim_channel_1 = adc_tim_channel_1;
+  this->_adc_tim_channel_2 = adc_tim_channel_2;
 
   // enable_pin pin
   this->_enable_a_gpio_bank = enable_a_gpio_bank;
@@ -73,6 +79,7 @@ void BLDCDriver3PWM::setPhaseState(int sa, int sb, int sc) {
 // Set voltage to the pwm pin
 void BLDCDriver3PWM::setPwm(float Ua, float Ub, float Uc) {
   float dc_a, dc_b, dc_c;
+  // uint32_t largest;
 
   // limit the voltage in driver
   Ua = _constrain(Ua, 0.0f, voltage_limit);
@@ -86,10 +93,20 @@ void BLDCDriver3PWM::setPwm(float Ua, float Ub, float Uc) {
   // dc_a = Ua / voltage_power_supply;
   // dc_b = Ub / voltage_power_supply;
   // dc_c = Uc / voltage_power_supply;
+  dc_a = (uint32_t)(dc_a*ARR_VALUE);
+  dc_b = (uint32_t)(dc_b*ARR_VALUE);
+  dc_c = (uint32_t)(dc_c*ARR_VALUE);
+
+  // largest = dc_a;
+  // if (dc_b > largest) largest = dc_b;
+  // if (dc_c > largest) largest = dc_c;
 
   // hardware specific writing
   // hardware specific function - depending on driver and mcu
-  __HAL_TIM_SET_COMPARE(this->_phA_timer, this->_phA_channel, (uint32_t)(dc_a*ARR_VALUE));
-  __HAL_TIM_SET_COMPARE(this->_phB_timer, this->_phB_channel, (uint32_t)(dc_b*ARR_VALUE));
-  __HAL_TIM_SET_COMPARE(this->_phC_timer, this->_phC_channel, (uint32_t)(dc_c*ARR_VALUE));
+  __HAL_TIM_SET_COMPARE(this->_phA_timer, this->_phA_channel, dc_a);
+  __HAL_TIM_SET_COMPARE(this->_phB_timer, this->_phB_channel, dc_b);
+  __HAL_TIM_SET_COMPARE(this->_phC_timer, this->_phC_channel, dc_c);
+
+  __HAL_TIM_SET_COMPARE(this->_adc_timer_1, this->_adc_tim_channel_1, dc_a);
+  __HAL_TIM_SET_COMPARE(this->_adc_timer_2, this->_adc_tim_channel_2, dc_c);
 }

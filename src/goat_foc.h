@@ -15,20 +15,18 @@ void initialize_driver(
     TIM_HandleTypeDef* phA_timer, uint32_t phA_channel,
     TIM_HandleTypeDef* phB_timer, uint32_t phB_channel,
     TIM_HandleTypeDef* phC_timer, uint32_t phC_channel,
+    TIM_HandleTypeDef* adc_timer_1, uint32_t adc_tim_channel_1,
+    TIM_HandleTypeDef* adc_timer_2, uint32_t adc_tim_channel_2,
     GPIO_TypeDef* enable_a_gpio_bank, uint16_t enable_a_pin,
     GPIO_TypeDef* enable_b_gpio_bank, uint16_t enable_b_pin,
     GPIO_TypeDef* enable_c_gpio_bank, uint16_t enable_c_pin
-    );
+);
 void initialize_encoder(ADC_HandleTypeDef * hadc);
 void initialize_current_sense(
     float shunt_resistor, 
     float gain, 
-    volatile uint16_t * adc_a, 
-    volatile uint16_t * adc_b, 
-    volatile uint16_t * adc_c, 
-    volatile uint32_t * adc_1_tick_updated, 
-    volatile uint32_t * adc_2_tick_updated
-    );
+    ADC_HandleTypeDef * hadc_1, 
+    ADC_HandleTypeDef * hadc_2);
 int initialize_motor(int pole_pairs, float phase_resistance, float kv);
 
 

@@ -37,10 +37,12 @@ class BLDCDriver3PWM: public BLDCDriver
       TIM_HandleTypeDef* phA_timer, uint32_t phA_channel,
       TIM_HandleTypeDef* phB_timer, uint32_t phB_channel,
       TIM_HandleTypeDef* phC_timer, uint32_t phC_channel,
+      TIM_HandleTypeDef* adc_timer_1, uint32_t adc_tim_channel_1,
+      TIM_HandleTypeDef* adc_timer_2, uint32_t adc_tim_channel_2,
       GPIO_TypeDef* enable_a_gpio_bank, uint16_t enable_a_pin,
       GPIO_TypeDef* enable_b_gpio_bank, uint16_t enable_b_pin,
       GPIO_TypeDef* enable_c_gpio_bank, uint16_t enable_c_pin
-      );
+    );
     /** Motor disable function */
   	void disable() override;
     /** Motor enable function */
@@ -50,9 +52,13 @@ class BLDCDriver3PWM: public BLDCDriver
   	TIM_HandleTypeDef* _phA_timer;
     TIM_HandleTypeDef* _phB_timer;
     TIM_HandleTypeDef* _phC_timer;
+    TIM_HandleTypeDef* _adc_timer_1;
+    TIM_HandleTypeDef* _adc_timer_2;
     uint32_t _phA_channel;
     uint32_t _phB_channel;
     uint32_t _phC_channel;
+    uint32_t _adc_tim_channel_1;
+    uint32_t _adc_tim_channel_2;
     GPIO_TypeDef* _enable_a_gpio_bank;
     GPIO_TypeDef* _enable_b_gpio_bank;
     GPIO_TypeDef* _enable_c_gpio_bank;

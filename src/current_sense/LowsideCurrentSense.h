@@ -14,6 +14,9 @@ extern "C" {
 
 #define VREF 3.3f
 #define ADC_MAX 0x3FF
+#define PHASE_A_CHANNEL ADC_CHANNEL_3
+#define PHASE_B_CHANNEL ADC_CHANNEL_4
+#define PHASE_C_CHANNEL ADC_CHANNEL_17
 
 class LowsideCurrentSense: public CurrentSense{
   public:
@@ -28,7 +31,7 @@ class LowsideCurrentSense: public CurrentSense{
     LowsideCurrentSense();
 
     // CurrentSense interface implementing functions
-    int init(float shunt_resistor, float gain, volatile uint16_t * adc_a, volatile uint16_t * adc_b, volatile uint16_t * adc_c, volatile uint32_t * adc_1_tick_updated, volatile uint32_t * adc_2_tick_updated);
+    int init(float shunt_resistor, float gain, ADC_HandleTypeDef * hadc_1, ADC_HandleTypeDef * hadc_2);
     PhaseCurrent_s getPhaseCurrents() override;
     int driverAlign(float align_voltage) override;
 
@@ -40,23 +43,20 @@ class LowsideCurrentSense: public CurrentSense{
     float gain_c; //!< phase C gain
 
     // // per phase low pass fileters
-    // LowPassFilter lpf_a{DEF_LPF_PER_PHASE_CURRENT_SENSE_Tf}; //!<  current A low pass filter
+    LowPassFilter lpf_a{DEF_LPF_PER_PHASE_CURRENT_SENSE_Tf}; //!<  current A low pass filter
     // LowPassFilter lpf_b{DEF_LPF_PER_PHASE_CURRENT_SENSE_Tf}; //!<  current B low pass filter
-    // LowPassFilter lpf_c{DEF_LPF_PER_PHASE_CURRENT_SENSE_Tf}; //!<  current C low pass filter
+    LowPassFilter lpf_c{DEF_LPF_PER_PHASE_CURRENT_SENSE_Tf}; //!<  current C low pass filter
 
     float offset_ia; //!< zero current A voltage value (center of the adc reading)
     float offset_ib; //!< zero current B voltage value (center of the adc reading)
     float offset_ic; //!< zero current C voltage value (center of the adc reading)
   private:
-    volatile uint32_t * _adc_1_tick_updated;
-    volatile uint32_t * _adc_2_tick_updated;
-    uint32_t _adc_1_last_updated;
-    uint32_t _adc_2_last_updated;
+    ADC_HandleTypeDef * _hadc_1;
+    ADC_HandleTypeDef * _hadc_2;
 
-    // hardware variables
-  	volatile uint16_t * _adc_a;
-    volatile uint16_t * _adc_b;
-    volatile uint16_t * _adc_c;
+    ADC_InjectionConfTypeDef _sConfigInjected_a;
+    ADC_InjectionConfTypeDef _sConfigInjected_b;
+    ADC_InjectionConfTypeDef _sConfigInjected_c;
 
     /**
      *  Function finding zero offsets of the ADC
