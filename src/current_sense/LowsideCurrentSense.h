@@ -54,9 +54,9 @@ class LowsideCurrentSense: public CurrentSense{
     ADC_HandleTypeDef * _hadc_1;
     ADC_HandleTypeDef * _hadc_2;
 
-    ADC_InjectionConfTypeDef _sConfigInjected_a;
-    ADC_InjectionConfTypeDef _sConfigInjected_b;
-    ADC_InjectionConfTypeDef _sConfigInjected_c;
+    ADC_ChannelConfTypeDef _sConfig_a;
+    ADC_ChannelConfTypeDef _sConfig_b;
+    ADC_ChannelConfTypeDef _sConfig_c;
 
     /**
      *  Function finding zero offsets of the ADC
