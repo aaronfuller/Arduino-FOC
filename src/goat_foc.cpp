@@ -5,11 +5,14 @@
 #include "sensors/megatron_cw360_4220.h"
 #include "drivers/BLDCDriver3PWM.h"
 #include "current_sense/LowsideCurrentSense.h"
+#include "communication/Commander.h"
 
 BLDCDriver3PWM driver;
 megatron_cw360_4220 sensor;
 LowsideCurrentSense current_sense;
 std::unique_ptr<BLDCMotor> motor;
+std::unique_ptr<Commander> commander;
+char * incoming_ethernet_command;
 
 int driver_initialized = 0;
 int sensor_initialized = 0;
@@ -71,23 +74,26 @@ int initialize_motor(int pole_pairs, float phase_resistance, float kv) {
 
     // motor->motion_downsample = 10;
 
-    motor->controller = MotionControlType::velocity;
+    motor->controller = MotionControlType::velocity_openloop;
 
     // motor->PID_velocity.P = 0.375;
-    motor->PID_velocity.P = 0.003;
+    // motor->PID_velocity.P = 0.1;
+    motor->PID_velocity.P = 2.7;
     // motor->PID_velocity.I = 0.3;
-    motor->PID_velocity.I = 0.2;
+    // motor->PID_velocity.I = 0.01;
+    motor->PID_velocity.I = 34.46798;
     // motor->PID_velocity.D = 0.0000001;
-    motor->PID_velocity.D = 0.0005;
+    // motor->PID_velocity.D = 0.0005;
+    motor->PID_velocity.D = 0.05287515;
 
-    motor->PID_velocity.output_ramp = 1000;
-    motor->LPF_velocity.Tf = 0.3;
+    // motor->PID_velocity.output_ramp = 10000;
+    motor->LPF_velocity.Tf = 0.075;
 
     motor->current_limit = 20.0f;
     motor->torque_controller = TorqueControlType::foc_current;
     motor->voltage_sensor_align = 1.0f;
-    motor->voltage_limit = 1.5f;
-    // motor->foc_modulation = FOCModulationType::Trapezoid_150;
+    motor->voltage_limit = 1.50f;
+    motor->foc_modulation = FOCModulationType::SpaceVectorPWM;
 
     // motor->velocity_limit = 0.1;
 
@@ -106,6 +112,11 @@ int initialize_motor(int pole_pairs, float phase_resistance, float kv) {
 
     // return success
     return 0;
+}
+
+void init_comms(char * command_buffer) {
+    commander = std::make_unique<Commander>('\n', false);
+    incoming_ethernet_command = command_buffer;
 }
 
 float vel = 0;
@@ -128,12 +139,17 @@ void loop_goat_foc() {
     end_loop = _micros();
     loop_duration = end_loop - start_loop;
     // sensor.update();
-    motor->move(2);
+    motor->move(15);
+
+    if (incoming_ethernet_command != nullptr) {
+        commander.run(incoming_ethernet_command);
+        incoming_ethernet_command = nullptr;
+    }
 
     vel = motor->shaftVelocity();
 
-    a_current = motor->current.q;
-    b_current = motor->current.d;
+    // a_current = motor->current.q;
+    // b_current = motor->current.d;
     // currents = current_sense.getPhaseCurrents();
     // a_current = currents.a;
     // b_current = currents.b;

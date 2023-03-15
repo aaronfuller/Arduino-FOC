@@ -25,14 +25,14 @@
 #define DEF_PID_CURR_D 0.00f //!<  default PID controller D value
 #define DEF_PID_CURR_RAMP 0  //!< default PID controller voltage ramp value
 #define DEF_PID_CURR_LIMIT (DEF_POWER_SUPPLY) //!< default PID controller voltage limit
-#define DEF_CURR_FILTER_Tf 0.5f //!< default currnet filter time constant
+#define DEF_CURR_FILTER_Tf 0.01f //!< default currnet filter time constant
 #endif
 // default current limit values
 #define DEF_CURRENT_LIM 44.0f //!< 2Amps current limit by default
 
 // default monitor downsample
 #define DEF_MON_DOWNSMAPLE 100 //!< default monitor downsample
-#define DEF_MOTION_DOWNSMAPLE 0 //!< default motion downsample - disable
+#define DEF_MOTION_DOWNSMAPLE 100 //!< default motion downsample - disable
 
 // angle P params
 #define DEF_P_ANGLE_P 20.0f //!< default P controller P value
@@ -46,4 +46,5 @@
 #define DEF_VEL_FILTER_Tf 0.005 //!< default velocity filter time constant
 
 // current sense default parameters
-#define DEF_LPF_PER_PHASE_CURRENT_SENSE_Tf 0.01f  //!< default currnet sense per phase low pass filter time constant 
+#define DEF_LPF_PER_PHASE_CURRENT_SENSE_Tf 0.02f  //!< default currnet sense per phase low pass filter time constant 
+// 0.01 works pretty well
