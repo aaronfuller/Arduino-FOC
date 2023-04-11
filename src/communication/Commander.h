@@ -5,8 +5,8 @@
 #include "../common/pid.h"
 #include "../common/lowpass_filter.h"
 #include "commands.h"
-#include "strtok.h"
-// #include <string.h>
+// #include "strtok.h"
+#include <cstring>
 
 
 #define MAX_COMMAND_LENGTH 20

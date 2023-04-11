@@ -1,5 +1,6 @@
 #include "goat_foc.h"
 #include <memory>
+#include <cstring>
 
 #include "BLDCMotor.h"
 #include "sensors/megatron_cw360_4220.h"
@@ -12,8 +13,10 @@ megatron_cw360_4220 sensor;
 LowsideCurrentSense current_sense;
 std::unique_ptr<BLDCMotor> motor;
 std::unique_ptr<Commander> commander;
+std::unique_ptr<Print> printer;
 char * incoming_ethernet_command;
 
+int motor_initialized = 0;
 int driver_initialized = 0;
 int sensor_initialized = 0;
 int current_sense_initialized = 0;
@@ -111,15 +114,31 @@ int initialize_motor(int pole_pairs, float phase_resistance, float kv) {
     // motor->target = 1;
 
     // return success
+    motor_initialized = 1;
     return 0;
 }
 
-void init_comms(char * command_buffer) {
+void onMotion(char * cmd) {
+    commander->motion(motor.get(), cmd);
+}
+
+int init_comms(char * command_buffer, int (*write_wrapper)(const char *, size_t)) {
+    if (!motor_initialized) return 1;
     commander = std::make_unique<Commander>('\n', false);
+    commander->add('M', onMotion, "motion control");
     incoming_ethernet_command = command_buffer;
+
+    printer = std::make_unique<Print>(write_wrapper);
+    motor->useMonitoring(*(printer.get()));
+    motor->monitor_variables = _MON_TARGET | _MON_VEL | _MON_ANGLE; // default _MON_TARGET | _MON_VOLT_Q | _MON_VEL | _MON_ANGLE
+    motor->monitor_downsample = 100; // default 10
+    // SimpleFOCDebug::enable(NULL);
+
+    return 0;
 }
 
 float vel = 0;
+float motor_target = 0;
 uint32_t start_loop;
 uint32_t end_loop;
 uint32_t loop_duration;
@@ -130,6 +149,7 @@ PhaseCurrent_s currents;
 float a_current = 0;
 float b_current = 0;
 float c_current = 0;
+char * current_command = nullptr;
 // int count;
 // int position = 0;
 // C wrapper to call the FOC loop
@@ -139,14 +159,16 @@ void loop_goat_foc() {
     end_loop = _micros();
     loop_duration = end_loop - start_loop;
     // sensor.update();
-    motor->move(15);
+    motor->move();
 
-    if (incoming_ethernet_command != nullptr) {
-        commander.run(incoming_ethernet_command);
-        incoming_ethernet_command = nullptr;
+    current_command = incoming_ethernet_command;
+    while (current_command[0] != 0) {
+        commander->run(current_command);
+        current_command = strchr(current_command, '\n') + 1;
     }
 
     vel = motor->shaftVelocity();
+    motor_target = motor->target;
 
     // a_current = motor->current.q;
     // b_current = motor->current.d;

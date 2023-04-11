@@ -77,7 +77,7 @@ void Commander::run(char* user_input){
         break;
       case VerboseMode::on_request:
       case VerboseMode::user_friendly:
-        println("on!");
+        println("on!"); 
         break;
       }
       break;

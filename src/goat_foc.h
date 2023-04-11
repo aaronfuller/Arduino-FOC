@@ -28,7 +28,7 @@ void initialize_current_sense(
     ADC_HandleTypeDef * hadc_1, 
     ADC_HandleTypeDef * hadc_2);
 int initialize_motor(int pole_pairs, float phase_resistance, float kv);
-void init_comms(char * command_buffer);
+int init_comms(char * command_buffer, int (*write_wrapper)(const char *, size_t));
 
 
 void loop_goat_foc();
