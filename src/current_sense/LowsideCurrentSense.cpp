@@ -27,7 +27,7 @@ int LowsideCurrentSense::init(float shunt_resistor, float gain, ADC_HandleTypeDe
     // PA2, ADC1, Channel 3
     this->_sConfig_a.Channel = PHASE_A_CHANNEL;
     this->_sConfig_a.Rank = ADC_REGULAR_RANK_1;
-    this->_sConfig_a.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
+    this->_sConfig_a.SamplingTime = ADC_SAMPLETIME_6CYCLES_5;
     this->_sConfig_a.SingleDiff = ADC_SINGLE_ENDED;
     this->_sConfig_a.OffsetNumber = ADC_OFFSET_NONE;
     this->_sConfig_a.Offset = 0;
@@ -36,7 +36,7 @@ int LowsideCurrentSense::init(float shunt_resistor, float gain, ADC_HandleTypeDe
     // PA3, ADC1, Channel 4
     this->_sConfig_b.Channel = PHASE_B_CHANNEL;
     this->_sConfig_b.Rank = ADC_REGULAR_RANK_1;
-    this->_sConfig_b.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
+    this->_sConfig_b.SamplingTime = ADC_SAMPLETIME_6CYCLES_5;
     this->_sConfig_b.SingleDiff = ADC_SINGLE_ENDED;
     this->_sConfig_b.OffsetNumber = ADC_OFFSET_NONE;
     this->_sConfig_b.Offset = 0;
@@ -45,7 +45,7 @@ int LowsideCurrentSense::init(float shunt_resistor, float gain, ADC_HandleTypeDe
     // PA4, ADC2, Channel 17
     this->_sConfig_c.Channel = PHASE_C_CHANNEL;
     this->_sConfig_c.Rank = ADC_REGULAR_RANK_1;
-    this->_sConfig_c.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
+    this->_sConfig_c.SamplingTime = ADC_SAMPLETIME_6CYCLES_5;
     this->_sConfig_c.SingleDiff = ADC_SINGLE_ENDED;
     this->_sConfig_c.OffsetNumber = ADC_OFFSET_NONE;
     this->_sConfig_c.Offset = 0;
@@ -56,6 +56,9 @@ int LowsideCurrentSense::init(float shunt_resistor, float gain, ADC_HandleTypeDe
     this->gain_b = volts_to_amps_ratio;
     this->gain_c = volts_to_amps_ratio;
 
+    // this->offset_ia = 0;
+    // this->offset_ib = 0;
+    // this->offset_ic = 0;
     calibrateOffsets();
 
     // set the initialized flag
@@ -121,14 +124,17 @@ PhaseCurrent_s LowsideCurrentSense::getPhaseCurrents(){
     HAL_ADC_Stop(this->_hadc_1);
     HAL_ADC_Stop(this->_hadc_2);
 
-    current.a = lpf_a(current.a);
-    current.c = lpf_c(current.c);
+    // current.a = lpf_a(current.a);
+    // current.c = lpf_c(current.c);
 
     // HAL_ADC_ConfigChannel(this->_hadc_1, &(this->_sConfig_b));
     // HAL_ADC_Start(this->_hadc_1);
     // HAL_ADC_PollForConversion(this->_hadc_1, HAL_MAX_DELAY);
     // current.b = ((((float)(HAL_ADC_GetValue(this->_hadc_1)) / (float)ADC_MAX) * VREF) - this->offset_ib) * this->gain_b;// amps
     // HAL_ADC_Stop(this->_hadc_1);
+
+    // current.b = lpf_b(current.b);
+
     current.b = -1 * (current.a + current.c);
 
     return current;

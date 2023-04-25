@@ -13,7 +13,7 @@ void megatron_cw360_4220::init(ADC_HandleTypeDef * hadc){
     this->_hadc = hadc;
     // Start max below probable minimum value for the max
     // this->_adc_max = (uint16_t)((INIT_MAX_V / VREF) * (ADC_MAX));
-    this->_adc_max = 459;
+    this->_adc_max = 577;
     // Start min above probable max value for the min
     // this->_adc_min = (uint16_t)((INIT_MIN_V / VREF) * (ADC_MAX));
     this->_adc_min = 92;
@@ -21,7 +21,7 @@ void megatron_cw360_4220::init(ADC_HandleTypeDef * hadc){
 
     this->_sConfig.Channel = ENCODER_ADC_CHANNEL;
     this->_sConfig.Rank = ADC_REGULAR_RANK_1;
-    this->_sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
+    this->_sConfig.SamplingTime = ADC_SAMPLETIME_24CYCLES_5;
     this->_sConfig.SingleDiff = ADC_SINGLE_ENDED;
     this->_sConfig.OffsetNumber = ADC_OFFSET_NONE;
     this->_sConfig.Offset = 0;

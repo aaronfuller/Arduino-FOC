@@ -61,6 +61,7 @@ float FOCMotor::shaftAngle() {
   // if no sensor linked return previous value ( for open loop )
   if(!sensor) return shaft_angle;
   return sensor_direction*LPF_angle(sensor->getAngle()) - sensor_offset;
+  // return sensor->getAngle();
 }
 // shaft velocity calculation
 float FOCMotor::shaftVelocity() {

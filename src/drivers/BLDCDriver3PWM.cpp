@@ -87,9 +87,9 @@ void BLDCDriver3PWM::setPwm(float Ua, float Ub, float Uc) {
   Uc = _constrain(Uc, 0.0f, voltage_limit);
   // calculate duty cycle
   // limited in [0,1]
-  dc_a = _constrain(Ua / voltage_power_supply, 0.0f , 1.0f );
-  dc_b = _constrain(Ub / voltage_power_supply, 0.0f , 1.0f );
-  dc_c = _constrain(Uc / voltage_power_supply, 0.0f , 1.0f );
+  dc_a = _constrain(Ua / voltage_power_supply, 0.0f, 1.0f);
+  dc_b = _constrain(Ub / voltage_power_supply, 0.0f, 1.0f);
+  dc_c = _constrain(Uc / voltage_power_supply, 0.0f, 1.0f);
   // dc_a = Ua / voltage_power_supply;
   // dc_b = Ub / voltage_power_supply;
   // dc_c = Uc / voltage_power_supply;

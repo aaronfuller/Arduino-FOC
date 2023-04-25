@@ -31,6 +31,7 @@ float PIDController::operator() (float error){
     float integral = integral_prev + I*Ts*0.5f*(error + error_prev);
     // antiwindup - limit the output
     integral = _constrain(integral, -limit, limit);
+
     // Discrete derivation
     // u_dk = D(ek - ek_1)/Ts
     float derivative = D*(error - error_prev)/Ts;
